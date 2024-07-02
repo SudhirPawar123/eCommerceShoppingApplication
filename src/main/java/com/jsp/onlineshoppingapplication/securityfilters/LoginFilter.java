@@ -15,28 +15,26 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class LoginFilter extends OncePerRequestFilter {
 
-	boolean loggedIn=false;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		Cookie[] cookies = request.getCookies();
+		boolean loggedIn=false;
 
-		if(cookies!=null) {
-		Arrays.asList(cookies).forEach(cookie -> {
-			if(cookie.getName().equals("rt")||cookie.getName().equals("at"))
-				loggedIn=true;
-		});
-		}
-		if(loggedIn) {
+		if(cookies!=null) 
+			for(Cookie cookie: cookies) {
+				if(cookie.getName().equals("rt")||cookie.getName().equals("at"))
+					loggedIn=true;
+			}
+		if(loggedIn) 
 			FilterException.handleJwtExpire(response,
 					HttpStatus.UNAUTHORIZED.value(),
 					"Failed to login",
 					"logout First");
-		}
 		else
 			filterChain.doFilter(request, response);
-		
+
 	}
 
 }
