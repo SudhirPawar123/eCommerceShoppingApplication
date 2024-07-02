@@ -23,6 +23,15 @@ spring:
      starttls:
       enable: true
       required: true
-  
+  #APPLICATION CONFIGURATION
+application:
+ jwt:
+  secret: ${jwt.secret}
+  access_expiry_seconds: 3600
+  refresh_expiry_seconds: 1296000
+ cookie: 
+  domain: localhost
+  same_site: Lax
+  secure: false
   
  

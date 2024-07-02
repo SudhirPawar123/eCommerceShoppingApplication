@@ -5,8 +5,10 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 
 import com.jsp.onlineshoppingapplication.enums.UserRole;
+import com.jsp.onlineshoppingapplication.requestdtos.AuthRequest;
 import com.jsp.onlineshoppingapplication.requestdtos.OtpVerificationRequest;
 import com.jsp.onlineshoppingapplication.requestdtos.UserRequest;
+import com.jsp.onlineshoppingapplication.responsedtos.AuthResponse;
 import com.jsp.onlineshoppingapplication.responsedtos.UserResponse;
 import com.jsp.onlineshoppingapplication.util.ResponseStructure;
 
@@ -26,5 +28,7 @@ public interface UserService {
     ResponseEntity<ResponseStructure<List<UserResponse>>> findUsers();
 
 	ResponseEntity<ResponseStructure<UserResponse>> otpVerification(OtpVerificationRequest otpVerificationRequest);
+
+	ResponseEntity<ResponseStructure<AuthResponse>> login(AuthRequest authRequest);
 
 }
