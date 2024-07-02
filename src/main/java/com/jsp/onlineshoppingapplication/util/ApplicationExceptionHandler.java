@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.jsp.onlineshoppingapplication.exception.IllegalOperationException;
 import com.jsp.onlineshoppingapplication.exception.InvalidOtpException;
+import com.jsp.onlineshoppingapplication.exception.JwtExpiredException;
 import com.jsp.onlineshoppingapplication.exception.OtpExpiredException;
 import com.jsp.onlineshoppingapplication.exception.UserAlreadyExistException;
 import com.jsp.onlineshoppingapplication.exception.UserNotExistException;
@@ -48,6 +49,12 @@ public class ApplicationExceptionHandler {
 
     @ExceptionHandler
     public ResponseEntity<ErrorStructure<String>> handleIllegalOperation(IllegalOperationException ex) {
+        return errorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), "Illegal Operation ...Please fill correct information");
+    }
+    
+//    JwtExpiredException
+    @ExceptionHandler
+    public ResponseEntity<ErrorStructure<String>> handleJwtExpired(JwtExpiredException ex) {
         return errorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), "Illegal Operation ...Please fill correct information");
     }
 
