@@ -1,6 +1,7 @@
 package com.jsp.onlineshoppingapplication.securityfilters;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -12,7 +13,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.jsp.onlineshoppingapplication.enums.UserRole;
-import com.jsp.onlineshoppingapplication.exception.JwtExpiredException;
 import com.jsp.onlineshoppingapplication.security.JwtService;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -72,5 +72,4 @@ public class SecurityFilter extends OncePerRequestFilter {
 		filterChain.doFilter(request, response);
 
 	}
-
 }
