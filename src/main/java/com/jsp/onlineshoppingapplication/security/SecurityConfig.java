@@ -43,7 +43,7 @@ public class SecurityConfig {
 	        return httpSecurity.csrf(AbstractHttpConfigurer::disable)
 	                .securityMatchers(match -> match.requestMatchers("/api/v1/**"))
 	                .authorizeHttpRequests(authorize -> authorize.requestMatchers("/api/v1/login/**",
-	                                "api/v1/otpVerification/**",
+	                                "api/v1/otpverification/**",
 	                                "api/v1/sellers/register/**",
 	                                "api/v1/customers/register/**")
 	                        .permitAll()
