@@ -5,5 +5,5 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class OtpExpiredException extends RuntimeException {
-   private String message;
+	private String message;
 }

@@ -1,9 +1,8 @@
 package com.jsp.onlineshoppingapplication.securityfilters;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,11 +11,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.jsp.onlineshoppingapplication.entity.RefreshToken;
 import com.jsp.onlineshoppingapplication.enums.UserRole;
+import com.jsp.onlineshoppingapplication.repository.RefreshTokenRepository;
 import com.jsp.onlineshoppingapplication.security.JwtService;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -25,50 +24,41 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class SecurityFilter extends OncePerRequestFilter {
-
+public class RefreshFilter extends OncePerRequestFilter {
 	private final JwtService jwtService;
+	private final RefreshTokenRepository refreshTokenRepository;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		String rt = null;
-		String at = null;
-
 		Cookie[] cookies = request.getCookies();
+		String rt = null;
 		if (cookies != null) {
 			for (Cookie cookie : cookies) {
 				if (cookie.getName().equals("rt"))
-					rt = cookie.getName();
-				else if (cookie.getName().equals("at"))
-					at = cookie.getName();
+					rt = cookie.getValue();
 			}
+		} else {
+			FilterException.handleJwtExpire(response, HttpStatus.UNAUTHORIZED.value(), "Failed to check refresh token",
+					"Refresh Token is not present");
 		}
 
-		if (at != null) {
-			try {
-				Date expireDate = jwtService.extractExpiryDate(at);
-				String username = jwtService.extractUsername(at);
-				UserRole userRole = jwtService.extractUserRole(at);
+		Optional<RefreshToken> refreshToken = refreshTokenRepository.findByToken(rt);
+		if (refreshToken.isPresent() && !refreshToken.get().isBlocked()) {
+			String username = jwtService.extractUsername(rt);
+			UserRole userRole = jwtService.extractUserRole(rt);
 
-				if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-					UsernamePasswordAuthenticationToken upat = new UsernamePasswordAuthenticationToken(username, null, List.of(new SimpleGrantedAuthority(userRole.name())));
-					upat.setDetails(new WebAuthenticationDetails(request));
-					SecurityContextHolder.getContext().setAuthentication(upat);
-				}
-			} catch (ExpiredJwtException e) {
-				FilterException.handleJwtExpire(response,
-						HttpStatus.UNAUTHORIZED.value(),
-						"Failed to authenticate",
-						"Token has already expired");
-				return;
-			} catch (JwtException e) {
-				FilterException.handleJwtExpire(response,
-						HttpStatus.UNAUTHORIZED.value(),
-						"Failed to authenticate",
-						"Invalid token");
+			if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+				UsernamePasswordAuthenticationToken upat = new UsernamePasswordAuthenticationToken(username, null,
+						List.of(new SimpleGrantedAuthority(userRole.name())));
+				upat.setDetails(new WebAuthenticationDetails(request));
+				SecurityContextHolder.getContext().setAuthentication(upat);
 			}
+		} else {
+			FilterException.handleJwtExpire(response, HttpStatus.UNAUTHORIZED.value(), "Failed to check refresh token",
+					"Refresh Token is already expired");
 		}
+
 		filterChain.doFilter(request, response);
 	}
 }

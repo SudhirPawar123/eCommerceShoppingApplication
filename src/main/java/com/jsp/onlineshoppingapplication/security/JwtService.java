@@ -20,8 +20,6 @@ public class JwtService {
 
 	@Value("${application.jwt.secret}")
 	private String secret;
-	
-//	private String secrett = "N7uAvVkpd27DXGVnB/m1pKkHGXbY3NhArqJ8BXOTcn+cXGZc5nFzHjOBwViQfj3zqC3dHeTJQXHC\r\ni4OrBg9HKw==";
 
 	private static final String ROLE="role";
 
@@ -40,7 +38,6 @@ public class JwtService {
 		return Keys.hmacShaKeyFor(key);
 	}
 
-	// 28
 	private Claims parseJwtToken(String token) {
 		return Jwts
 				.parserBuilder()
@@ -64,7 +61,7 @@ public class JwtService {
 		return parseJwtToken(token)
 				.getExpiration();
 	}
-	
+
 	public UserRole extractUserRole(String token) {
 		String role=parseJwtToken(token).get(ROLE,String.class);
 		return UserRole.valueOf(role);

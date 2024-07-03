@@ -17,8 +17,8 @@ import lombok.Setter;
 @Builder
 @Configuration
 public class MessageData {
-private String to;
-private String subject;
-private Date sentDate;
-private String text;
+	private String to;
+	private String subject;
+	private Date sentDate;
+	private String text;
 }

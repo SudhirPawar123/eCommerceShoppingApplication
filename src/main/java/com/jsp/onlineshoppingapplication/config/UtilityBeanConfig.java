@@ -11,6 +11,6 @@ public class UtilityBeanConfig {
 
 	@Bean
 	Random createOtp() {
-	return new SecureRandom();
+		return new SecureRandom();
 	}
 }
