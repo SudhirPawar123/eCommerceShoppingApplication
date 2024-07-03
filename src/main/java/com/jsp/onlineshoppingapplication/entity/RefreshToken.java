@@ -16,15 +16,17 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class RefreshToken {
-@Id
-@GeneratedValue(strategy = GenerationType.IDENTITY)
-private long tokenId;
-private String token;
-private LocalDateTime expiration;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long tokenId;
+	private String token;
+	private LocalDateTime expiration;
+	private boolean isBlocked;
 
-@ManyToOne
-private User user;
+	@ManyToOne
+	private User user;
 }

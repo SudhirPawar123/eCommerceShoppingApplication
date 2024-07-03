@@ -15,7 +15,6 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class LoginFilter extends OncePerRequestFilter {
 
-
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
@@ -34,7 +33,5 @@ public class LoginFilter extends OncePerRequestFilter {
 					"logout First");
 		else
 			filterChain.doFilter(request, response);
-
 	}
-
 }

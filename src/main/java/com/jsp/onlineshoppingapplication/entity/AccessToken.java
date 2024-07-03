@@ -17,7 +17,8 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class AccessToken {
 	@Id
@@ -25,6 +26,7 @@ public class AccessToken {
 	private long tokenId;
 	private String token;
 	private LocalDateTime expiration;
+	private boolean isBlocked;
 
 	@ManyToOne
 	private User user;

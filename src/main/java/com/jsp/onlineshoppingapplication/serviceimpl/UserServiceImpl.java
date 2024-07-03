@@ -28,8 +28,10 @@ import com.jsp.onlineshoppingapplication.enums.UserRole;
 import com.jsp.onlineshoppingapplication.exception.IllegalOperationException;
 import com.jsp.onlineshoppingapplication.exception.InvalidOtpException;
 import com.jsp.onlineshoppingapplication.exception.OtpExpiredException;
+import com.jsp.onlineshoppingapplication.exception.TokenExpiredException;
 import com.jsp.onlineshoppingapplication.exception.UserAlreadyExistException;
 import com.jsp.onlineshoppingapplication.exception.UserNotExistException;
+import com.jsp.onlineshoppingapplication.exception.UserNotLoggedInException;
 import com.jsp.onlineshoppingapplication.mapper.UserMapper;
 import com.jsp.onlineshoppingapplication.repository.AccessTokenRepository;
 import com.jsp.onlineshoppingapplication.repository.RefreshTokenRepository;
@@ -228,23 +230,23 @@ public class UserServiceImpl implements UserService {
 			Authentication authenticate = authenticationManager.authenticate(
 					new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
 			if (authenticate.isAuthenticated()) {
-				
+
 				return userRepository.findByUsername(authRequest.getUsername()).map((existUser)->{
 					HttpHeaders httpHeaders = new HttpHeaders(); 
 					grantAccessToken(httpHeaders ,existUser);
 					grantRefreshToken(httpHeaders ,existUser);
-					
+
 					return ResponseEntity.status(HttpStatus.OK)
 							.headers(httpHeaders)
 							.body(new ResponseStructure<AuthResponse>()
-							.setStatus(HttpStatus.OK.value())
-							.setMessage("Token created")
-							.setData(AuthResponse.builder()
-									.userId(existUser.getUserId())
-									.username(existUser.getUsername())
-									.accessExpiration(accessExpirySeconds)
-									.refreshExpiration(refreshExpirySeconds)
-									.build()));
+									.setStatus(HttpStatus.OK.value())
+									.setMessage("Token created")
+									.setData(AuthResponse.builder()
+											.userId(existUser.getUserId())
+											.username(existUser.getUsername())
+											.accessExpiration(accessExpirySeconds)
+											.refreshExpiration(refreshExpirySeconds)
+											.build()));
 				}).orElseThrow(()->new UserNotExistException("Username : "+authRequest.getUsername()+", not exist"));
 			}
 
@@ -264,7 +266,7 @@ public class UserServiceImpl implements UserService {
 				.user(user)
 				.build();
 
-	    accessTokenRepository.save(accessToken);
+		accessTokenRepository.save(accessToken);
 
 		httpHeaders.add(HttpHeaders.SET_COOKIE, generateCookie("at", token, accessExpirySeconds));
 
@@ -282,7 +284,6 @@ public class UserServiceImpl implements UserService {
 		refreshTokenRepository.save(refreshToken);
 
 		httpHeaders.add(HttpHeaders.SET_COOKIE, generateCookie("rt", token, refreshExpirySeconds));
-
 	}
 
 	private String generateCookie(String name, String value, long maxAge) {
@@ -297,4 +298,32 @@ public class UserServiceImpl implements UserService {
 				.toString();
 	}
 
+	@Override
+	public ResponseEntity<ResponseStructure<AuthResponse>> refreshLogin(String refreshToken) {
+		if(refreshToken == null)
+			throw new UserNotLoggedInException("Please login first");
+
+		Date expiryDate = jwtService.extractExpiryDate(refreshToken);
+		if (expiryDate.getTime() < new Date().getTime()) {
+			throw new TokenExpiredException("Refresh token was expired, Please make a new SignIn request");
+		} else {
+			String username = jwtService.extractUsername(refreshToken);
+			User user = userRepository.findByUsername(username).get();
+
+			HttpHeaders httpHeaders = new HttpHeaders();
+			grantAccessToken(httpHeaders, user);
+
+			return ResponseEntity.status(HttpStatus.OK)
+					.headers(httpHeaders)
+					.body(new ResponseStructure<AuthResponse>()
+							.setStatus(HttpStatus.OK.value())
+							.setMessage("Access Toke renewed")
+							.setData(AuthResponse.builder()
+									.userId(user.getUserId())
+									.username(user.getUsername())
+									.accessExpiration(accessExpirySeconds)
+									.refreshExpiration((expiryDate.getTime() - new Date().getTime())/1000)
+									.build()));
+		}
+	}
 }

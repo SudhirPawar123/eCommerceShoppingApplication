@@ -10,14 +10,10 @@ import lombok.Getter;
 
 @Getter
 public class UserRequest {
-//	@NotNull(message = "Username can not be null")
-//	@NotBlank(message = "Username can not be blank")
-//	private String username;
 
 	@NotBlank(message = "Email can not be blank")
 	@NotNull(message = "Email can not be null")
 	@Email(regexp = "[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+\\.[a-z]{2,}", message = "invalid email ")
-	//	    @Email(regexp = "^[a-zA-Z0-9._%+-]+@gmail\\.com$", message = "email should be contain suffix @gmail.com")
 	private String email;
 
 	@Pattern(regexp = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$", message = "Password must"

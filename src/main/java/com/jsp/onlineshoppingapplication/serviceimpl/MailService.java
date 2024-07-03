@@ -13,16 +13,16 @@ import lombok.AllArgsConstructor;
 @Service
 @AllArgsConstructor
 public class MailService {
-	
-private final JavaMailSender javaMailSender;
 
-public void sendMail(MessageData messageData) throws MessagingException{
-	MimeMessage message=javaMailSender.createMimeMessage();
-	MimeMessageHelper helper=new MimeMessageHelper(message, true);
-	helper.setTo(messageData.getTo());
-	helper.setSubject(messageData.getSubject());
-	helper.setSentDate(messageData.getSentDate());
-	helper.setText(messageData.getText(), true);
-	javaMailSender.send(message);
-}
+	private final JavaMailSender javaMailSender;
+
+	public void sendMail(MessageData messageData) throws MessagingException{
+		MimeMessage message=javaMailSender.createMimeMessage();
+		MimeMessageHelper helper=new MimeMessageHelper(message, true);
+		helper.setTo(messageData.getTo());
+		helper.setSubject(messageData.getSubject());
+		helper.setSentDate(messageData.getSentDate());
+		helper.setText(messageData.getText(), true);
+		javaMailSender.send(message);
+	}
 }
