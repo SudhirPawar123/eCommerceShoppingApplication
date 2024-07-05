@@ -50,6 +50,7 @@ public class SecurityFilter extends OncePerRequestFilter {
                     at = cookie.getValue();
             }
         }
+        
         if (at != null && rt != null) {
             Optional<RefreshToken> refreshToken = refreshTokenRepository.findByToken(rt);
             Optional<AccessToken> accessToken = accessTokenRepository.findByToken(at);
