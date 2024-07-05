@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.jsp.onlineshoppingapplication.repository.AccessTokenRepository;
 import com.jsp.onlineshoppingapplication.repository.RefreshTokenRepository;
 import com.jsp.onlineshoppingapplication.securityfilters.LoginFilter;
 import com.jsp.onlineshoppingapplication.securityfilters.RefreshFilter;
@@ -31,6 +32,7 @@ public class SecurityConfig {
 
 	private final JwtService jwtService;
 	private final RefreshTokenRepository refreshTokenRepository;
+    private final AccessTokenRepository accessTokenRepository;
 
 	@Bean
 	PasswordEncoder passwordEncoder() {
@@ -42,15 +44,9 @@ public class SecurityConfig {
 	    SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 	        return httpSecurity.csrf(AbstractHttpConfigurer::disable)
 	                .securityMatchers(match -> match.requestMatchers("/api/v1/**"))
-	                .authorizeHttpRequests(authorize -> authorize.requestMatchers("/api/v1/login/**",
-	                                "api/v1/otpVerification/**",
-	                                "api/v1/sellers/register/**",
-	                                "api/v1/customers/register/**")
-	                        .permitAll()
-	                        .anyRequest()
-	                        .authenticated())
+	                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll())
 	                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-	                .addFilterBefore(new SecurityFilter(jwtService), UsernamePasswordAuthenticationFilter.class)
+	                .addFilterBefore(new SecurityFilter(jwtService, refreshTokenRepository, accessTokenRepository), UsernamePasswordAuthenticationFilter.class)
 	                .build();
 	    }
 

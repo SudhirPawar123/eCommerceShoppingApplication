@@ -39,7 +39,9 @@ public class RefreshFilter extends OncePerRequestFilter {
 					rt = cookie.getValue();
 			}
 		} else {
-			FilterException.handleJwtExpire(response, HttpStatus.UNAUTHORIZED.value(), "Failed to check refresh token",
+			FilterException.handleJwtExpire(response,
+					HttpStatus.UNAUTHORIZED.value(),
+					"Failed to check refresh token",
 					"Refresh Token is not present");
 		}
 
@@ -52,10 +54,14 @@ public class RefreshFilter extends OncePerRequestFilter {
 				UsernamePasswordAuthenticationToken upat = new UsernamePasswordAuthenticationToken(username, null,
 						List.of(new SimpleGrantedAuthority(userRole.name())));
 				upat.setDetails(new WebAuthenticationDetails(request));
-				SecurityContextHolder.getContext().setAuthentication(upat);
+				SecurityContextHolder
+				.getContext()
+				.setAuthentication(upat);
 			}
 		} else {
-			FilterException.handleJwtExpire(response, HttpStatus.UNAUTHORIZED.value(), "Failed to check refresh token",
+			FilterException.handleJwtExpire(response, 
+					HttpStatus.UNAUTHORIZED.value(),
+					"Failed to check refresh token",
 					"Refresh Token is already expired");
 		}
 
