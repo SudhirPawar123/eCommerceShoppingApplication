@@ -44,7 +44,6 @@ public class SecurityFilter extends OncePerRequestFilter {
 					at = cookie.getName();
 			}
 		}
-
 		if (at != null) {
 			try {
 				Date expireDate = jwtService.extractExpiryDate(at);
