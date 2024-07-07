@@ -9,12 +9,14 @@ package com.jsp.onlineshoppingapplication.security;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
 import com.jsp.onlineshoppingapplication.repository.UserRepository;
 
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
+@Service
 public class UserDetailServiceImpl implements UserDetailsService {
 
 	private final UserRepository userRepository;

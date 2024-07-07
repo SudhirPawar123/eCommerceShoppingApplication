@@ -3,8 +3,8 @@ package com.jsp.onlineshoppingapplication.exception;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@Getter
 @AllArgsConstructor
-public class UserNotExistException extends RuntimeException {
+@Getter
+public class TokenExpiredException extends RuntimeException {
 	private String message;
 }

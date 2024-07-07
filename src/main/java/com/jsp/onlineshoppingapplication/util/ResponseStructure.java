@@ -1,7 +1,6 @@
 package com.jsp.onlineshoppingapplication.util;
 
 public class ResponseStructure<T> {
-
 	private long status;
 	private String message;
 	private T data;
@@ -26,7 +25,5 @@ public class ResponseStructure<T> {
 	public ResponseStructure<T> setData(T data) {
 		this.data = data;
 		return this;
-
 	}
-	
 }

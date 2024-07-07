@@ -6,6 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class OtpVerificationRequest {
-private String email;
-private String otp;
+	private String email;
+	private String otp;
 }
