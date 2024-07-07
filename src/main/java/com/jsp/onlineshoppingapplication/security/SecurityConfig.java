@@ -39,24 +39,6 @@ public class SecurityConfig {
 		return new BCryptPasswordEncoder(12);
 	}
 
-<<<<<<< HEAD
-	 @Bean
-	    @Order(3)
-	    SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-	        return httpSecurity.csrf(AbstractHttpConfigurer::disable)
-	                .securityMatchers(match -> match.requestMatchers("/api/v1/**"))
-	                .authorizeHttpRequests(authorize -> authorize.requestMatchers("/api/v1/login/**",
-	                                "api/v1/otpverification/**",
-	                                "api/v1/sellers/register/**",
-	                                "api/v1/customers/register/**")
-	                        .permitAll()
-	                        .anyRequest()
-	                        .authenticated())
-	                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-	                .addFilterBefore(new SecurityFilter(jwtService), UsernamePasswordAuthenticationFilter.class)
-	                .build();
-	    }
-=======
 	@Bean
 	@Order(3)
 	SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -67,7 +49,6 @@ public class SecurityConfig {
 				.addFilterBefore(new SecurityFilter(jwtService, refreshTokenRepository, accessTokenRepository), UsernamePasswordAuthenticationFilter.class)
 				.build();
 	}
->>>>>>> fd9ea50d6d50341b22f3c207137071b11214cfae
 
 	@Bean
 	@Order(2)

@@ -41,22 +41,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         String rt = null;
         String at = null;
 
-<<<<<<< HEAD
-		Cookie[] cookies = request.getCookies();
-		if (cookies != null) {
-			for (Cookie cookie : cookies) {
-				if (cookie.getName().equals("rt"))
-					rt = cookie.getName();
-				else if (cookie.getName().equals("at"))
-					at = cookie.getName();
-			}
-		}
-		if (at != null) {
-			try {
-				Date expireDate = jwtService.extractExpiryDate(at);
-				String username = jwtService.extractUsername(at);
-				UserRole userRole = jwtService.extractUserRole(at);
-=======
+
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
@@ -79,7 +64,6 @@ public class SecurityFilter extends OncePerRequestFilter {
                         Date expireDate = jwtService.extractExpiryDate(at);
                         String username = jwtService.extractUsername(at);
                         UserRole userRole = jwtService.extractUserRole(at);
->>>>>>> fd9ea50d6d50341b22f3c207137071b11214cfae
 
                         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                             UsernamePasswordAuthenticationToken upat = new UsernamePasswordAuthenticationToken(username, null, List.of(new SimpleGrantedAuthority(userRole.name())));
