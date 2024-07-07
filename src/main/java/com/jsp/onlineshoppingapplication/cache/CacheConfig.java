@@ -29,5 +29,4 @@ public class CacheConfig {
 				.concurrencyLevel(Runtime.getRuntime().availableProcessors())
 				.build();
 	}
-
 }
