@@ -7,6 +7,6 @@ import com.jsp.onlineshoppingapplication.enums.UserRole;
 
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
-	void save(UserRole userRole);
+//	void save(UserRole userRole);
 
 }

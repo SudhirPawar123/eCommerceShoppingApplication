@@ -9,6 +9,7 @@ import com.jsp.onlineshoppingapplication.requestdtos.AuthRequest;
 import com.jsp.onlineshoppingapplication.requestdtos.OtpVerificationRequest;
 import com.jsp.onlineshoppingapplication.requestdtos.UserRequest;
 import com.jsp.onlineshoppingapplication.responsedtos.AuthResponse;
+import com.jsp.onlineshoppingapplication.responsedtos.LogoutResponse;
 import com.jsp.onlineshoppingapplication.responsedtos.UserResponse;
 import com.jsp.onlineshoppingapplication.util.ResponseStructure;
 
@@ -29,4 +30,10 @@ public interface UserService {
 	ResponseEntity<ResponseStructure<AuthResponse>> login(AuthRequest authRequest);
 
 	ResponseEntity<ResponseStructure<AuthResponse>> refreshLogin(String refreshToken);
+
+	ResponseEntity<LogoutResponse> logout(String refreshToken, String accessToken);
+
+	ResponseEntity<LogoutResponse> logoutFromOtherDevices(String refreshToken, String accessToken);
+
+	ResponseEntity<LogoutResponse> logoutFromAllDevices(String refreshToken, String accessToken);
 }

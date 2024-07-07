@@ -20,6 +20,7 @@ import com.jsp.onlineshoppingapplication.requestdtos.AuthRequest;
 import com.jsp.onlineshoppingapplication.requestdtos.OtpVerificationRequest;
 import com.jsp.onlineshoppingapplication.requestdtos.UserRequest;
 import com.jsp.onlineshoppingapplication.responsedtos.AuthResponse;
+import com.jsp.onlineshoppingapplication.responsedtos.LogoutResponse;
 import com.jsp.onlineshoppingapplication.responsedtos.UserResponse;
 import com.jsp.onlineshoppingapplication.service.UserService;
 import com.jsp.onlineshoppingapplication.util.ResponseStructure;
@@ -80,6 +81,28 @@ public class UserController {
 			@CookieValue(value = "rt", required = false) String refreshToken) {
 		return userService.refreshLogin(refreshToken);
 	}
+
+	@PostMapping("/logout")
+	@PreAuthorize("hasAuthority('CUSTOMER') OR hasAuthority('SELLER')")
+	public ResponseEntity<LogoutResponse> logout(@CookieValue(value = "rt", required = false) String refreshToken,
+			@CookieValue(value = "at", required = false) String accessToken) {
+		return userService.logout(refreshToken, accessToken);
+	}
+
+	@PostMapping("/logoutFromOtherDevices")
+	@PreAuthorize("hasAuthority('CUSTOMER') OR hasAuthority('SELLER')")
+	public ResponseEntity<LogoutResponse> logoutFromOtherDevices(@CookieValue(value = "rt", required = false) String refreshToken,
+			@CookieValue(value = "at", required = false) String accessToken) {
+		return userService.logoutFromOtherDevices(refreshToken, accessToken);
+	}
+
+	@PostMapping("/logoutFromAllDevices")
+	@PreAuthorize("hasAuthority('CUSTOMER') OR hasAuthority('SELLER')")
+	public ResponseEntity<LogoutResponse> logoutFromAllDevices(@CookieValue(value = "rt", required = false) String refreshToken,
+			@CookieValue(value = "at", required = false) String accessToken) {
+		return userService.logoutFromAllDevices(refreshToken, accessToken);
+	}
+
 
 	@GetMapping("/test")
 	public String test() {
