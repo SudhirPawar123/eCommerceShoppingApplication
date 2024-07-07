@@ -21,6 +21,7 @@ public class CacheConfig {
 				.build();
 	}
 
+	
 	@Bean
 	Cache<String,User> userCache(){
 		return CacheBuilder.newBuilder()
