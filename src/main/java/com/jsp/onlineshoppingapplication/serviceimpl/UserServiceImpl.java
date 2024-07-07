@@ -3,6 +3,7 @@ package com.jsp.onlineshoppingapplication.serviceimpl;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -40,6 +41,7 @@ import com.jsp.onlineshoppingapplication.requestdtos.AuthRequest;
 import com.jsp.onlineshoppingapplication.requestdtos.OtpVerificationRequest;
 import com.jsp.onlineshoppingapplication.requestdtos.UserRequest;
 import com.jsp.onlineshoppingapplication.responsedtos.AuthResponse;
+import com.jsp.onlineshoppingapplication.responsedtos.LogoutResponse;
 import com.jsp.onlineshoppingapplication.responsedtos.UserResponse;
 import com.jsp.onlineshoppingapplication.security.JwtService;
 import com.jsp.onlineshoppingapplication.service.UserService;
@@ -258,7 +260,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	private void grantAccessToken(HttpHeaders httpHeaders, User user) {
-		String token = jwtService.createJwtToken(user.getUsername(), accessExpirySeconds,user.getUserRole());
+		String token = jwtService.createJwtToken(user.getUsername(), (accessExpirySeconds*1000),user.getUserRole());
 
 		AccessToken accessToken = AccessToken.builder()
 				.token(token)
@@ -273,7 +275,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	private void grantRefreshToken(HttpHeaders httpHeaders, User user) {
-		String token = jwtService.createJwtToken(user.getUsername(), refreshExpirySeconds,user.getUserRole()); // refreshExpirySeconds = (60 * 60 * 24 * 15L) = 1296000
+		String token = jwtService.createJwtToken(user.getUsername(), (refreshExpirySeconds*1000),user.getUserRole()); // refreshExpirySeconds = (60 * 60 * 24 * 15L) = 1296000
 
 		RefreshToken refreshToken = RefreshToken.builder()
 				.token(token)
@@ -300,8 +302,6 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public ResponseEntity<ResponseStructure<AuthResponse>> refreshLogin(String refreshToken) {
-		if(refreshToken == null)
-			throw new UserNotLoggedInException("Please login first");
 
 		Date expiryDate = jwtService.extractExpiryDate(refreshToken);
 		if (expiryDate.getTime() < new Date().getTime()) {
@@ -326,4 +326,81 @@ public class UserServiceImpl implements UserService {
 									.build()));
 		}
 	}
+
+	@Override
+	public ResponseEntity<LogoutResponse> logout(String refreshToken, String accessToken) {
+		Optional<RefreshToken> optionalRefreshToken = refreshTokenRepository.findByToken(refreshToken);
+		Optional<AccessToken> optionalAccessToken = accessTokenRepository.findByToken(accessToken);
+		RefreshToken existRefreshToken = optionalRefreshToken.get();
+		AccessToken existAccessToken = optionalAccessToken.get();
+
+		existRefreshToken.setBlocked(true);
+		existAccessToken.setBlocked(true);
+		refreshTokenRepository.save(existRefreshToken);
+		accessTokenRepository.save(existAccessToken);
+
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.add(HttpHeaders.SET_COOKIE, generateCookie("rt", null, 0));
+		httpHeaders.add(HttpHeaders.SET_COOKIE, generateCookie("at", null, 0));
+
+		return ResponseEntity.status(HttpStatus.OK)
+				.headers(httpHeaders)
+				.body(LogoutResponse.builder()
+						.status(HttpStatus.OK.value())
+						.message("User logout done")
+						.build());
+	}
+
+
+	@Override
+	public ResponseEntity<LogoutResponse> logoutFromOtherDevices(String refreshToken, String accessToken) {
+		String username = jwtService.extractUsername(refreshToken);
+		User user = userRepository.findByUsername(username).get();
+
+		List<RefreshToken> listRT = refreshTokenRepository.findByUserAndIsBlockedAndTokenNot(user, false, refreshToken);
+		List<AccessToken> listAT = accessTokenRepository.findByUserAndIsBlockedAndTokenNot(user, false, accessToken);
+		listRT.forEach(rt->{
+			rt.setBlocked(true);
+			refreshTokenRepository.save(rt);
+		});
+		listAT.forEach(at->{
+			at.setBlocked(true);
+			accessTokenRepository.save(at);
+		});
+		return ResponseEntity.status(HttpStatus.OK).body(LogoutResponse.builder()
+				.status(HttpStatus.OK.value())
+				.message("Other Devices Logout done")
+				.build());
+	}
+
+
+	@Override
+	public ResponseEntity<LogoutResponse> logoutFromAllDevices(String refreshToken, String accessToken) {
+		String username = jwtService.extractUsername(refreshToken);
+		User user = userRepository.findByUsername(username).get();
+
+		List<RefreshToken> listRT = refreshTokenRepository.findByUserAndIsBlocked(user, false);
+		List<AccessToken> listAT = accessTokenRepository.findByUserAndIsBlocked(user, false);
+		listRT.forEach(rt->{
+			rt.setBlocked(true);
+			refreshTokenRepository.save(rt);
+		});
+		listAT.forEach(at->{
+			at.setBlocked(true);
+			accessTokenRepository.save(at);
+		});
+
+		HttpHeaders httpHeaders = new HttpHeaders();
+		httpHeaders.add(HttpHeaders.SET_COOKIE, generateCookie("rt", null, 0));
+		httpHeaders.add(HttpHeaders.SET_COOKIE, generateCookie("at", null, 0));
+
+		return ResponseEntity.status(HttpStatus.OK)
+				.headers(httpHeaders)
+				.body(LogoutResponse.builder()
+						.status(HttpStatus.OK.value())
+						.message("Logout successfully done from all devices")
+						.build());
+	}
 }
+
+

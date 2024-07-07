@@ -52,32 +52,36 @@ public class SecurityFilter extends OncePerRequestFilter {
         }
         
         if (at != null && rt != null) {
-            Optional<RefreshToken> refreshToken = refreshTokenRepository.findByToken(rt);
-            Optional<AccessToken> accessToken = accessTokenRepository.findByToken(at);
+            Optional<RefreshToken> optionalRT = refreshTokenRepository.findByToken(rt);
+            Optional<AccessToken> optionalAT = accessTokenRepository.findByToken(at);
 
-            if (!refreshToken.get().isBlocked() && !accessToken.get().isBlocked()) {
-                try {
-                    Date expireDate = jwtService.extractExpiryDate(at);
-                    String username = jwtService.extractUsername(at);
-                    UserRole userRole = jwtService.extractUserRole(at);
+            if (optionalRT.isPresent() && optionalAT.isPresent()) {
+                RefreshToken refreshToken = optionalRT.get();
+                AccessToken accessToken = optionalAT.get();
+                if (!refreshToken.isBlocked() & !accessToken.isBlocked()) {
+                    try {
+                        Date expireDate = jwtService.extractExpiryDate(at);
+                        String username = jwtService.extractUsername(at);
+                        UserRole userRole = jwtService.extractUserRole(at);
 
-                    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                        UsernamePasswordAuthenticationToken upat = new UsernamePasswordAuthenticationToken(username, null, List.of(new SimpleGrantedAuthority(userRole.name())));
-                        upat.setDetails(new WebAuthenticationDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(upat);
+                        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                            UsernamePasswordAuthenticationToken upat = new UsernamePasswordAuthenticationToken(username, null, List.of(new SimpleGrantedAuthority(userRole.name())));
+                            upat.setDetails(new WebAuthenticationDetails(request));
+                            SecurityContextHolder.getContext().setAuthentication(upat);
+                        }
+                    } catch (ExpiredJwtException e) {
+                        FilterException.handleJwtExpire(response,
+                                HttpStatus.UNAUTHORIZED.value(),
+                                "Failed to authenticate",
+                                "Token has already expired");
+                        return;
+                    } catch (JwtException e) {
+                        FilterException.handleJwtExpire(response,
+                                HttpStatus.UNAUTHORIZED.value(),
+                                "Failed to authenticate",
+                                "you are not allowed to access this resource");
+                        return;
                     }
-                } catch (ExpiredJwtException e) {
-                    FilterException.handleJwtExpire(response,
-                            HttpStatus.UNAUTHORIZED.value(),
-                            "Failed to authenticate",
-                            "Token has already expired");
-                    return;
-                } catch (JwtException e) {
-                    FilterException.handleJwtExpire(response,
-                            HttpStatus.UNAUTHORIZED.value(),
-                            "Failed to authenticate",
-                            "you are not allowed to access this resource");
-                    return;
                 }
             } else {
                 FilterException.handleJwtExpire(response,

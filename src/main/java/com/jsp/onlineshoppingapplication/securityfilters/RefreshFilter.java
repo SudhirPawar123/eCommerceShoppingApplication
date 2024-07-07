@@ -63,6 +63,7 @@ public class RefreshFilter extends OncePerRequestFilter {
 					HttpStatus.UNAUTHORIZED.value(),
 					"Failed to check refresh token",
 					"Refresh Token is already expired");
+			return;
 		}
 
 		filterChain.doFilter(request, response);
